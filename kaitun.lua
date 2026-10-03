@@ -368487,8 +368487,7 @@ P[1067] = function(U, ...)
         R[12] = nil
         pc = 2059
       elseif pc == 2059 then
-        R[13] = env["debug"]["info"]
-        pc = 2060
+        pc = 2136
       elseif pc == 2060 then
         R[202] = 16149
         pc = 2061
