@@ -60,4 +60,33 @@ getgenv().Configs = {
     ["Lock Fragment"] = 0,
     ["Buy Stuffs"] = true
 }
-loadstring(game:HttpGet("https://raw.githubusercontent.com/domonkk/srctest/main/kaitun.lua"))()
+local state = getgenv()
+if state.Check_Execute and state.KaitunGame == game and state.KaitunJobId == game.JobId then
+    local ok, hud = pcall(function()
+        return game:GetService("CoreGui"):FindFirstChild("XeroKaitunHud")
+    end)
+    if ok and hud then
+        pcall(function() hud.Enabled = true end)
+        if type(state.KaitunShowHud) == "function" then
+            pcall(state.KaitunShowHud, true)
+        end
+    end
+    return
+end
+if state.KaitunLoadingGame == game and state.KaitunLoadingJobId == game.JobId
+    and type(state.KaitunLoadingAt) == "number" and tick() - state.KaitunLoadingAt < 600 then return end
+local loadingToken = {}
+state.KaitunLoadingGame = game
+state.KaitunLoadingJobId = game.JobId
+state.KaitunLoadingAt = tick()
+state.KaitunLoadingToken = loadingToken
+local ok, result = pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/domonkk/srctest/main/kaitun.lua"))()
+end)
+if state.KaitunLoadingToken == loadingToken then
+    state.KaitunLoadingGame = nil
+    state.KaitunLoadingJobId = nil
+    state.KaitunLoadingAt = nil
+    state.KaitunLoadingToken = nil
+end
+if not ok then error(result, 0) end

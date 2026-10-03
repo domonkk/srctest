@@ -325411,6 +325411,7 @@ P[958] = function(U, ...)
       elseif pc == 2157 then
         R[52] = function(...) return P[950]({capture(R, cells, 51),{value=R[27]},U[10],{value=R[11]},{value=R[7]},capture(R, cells, 21),{value=R[23]},{value=R[24]},{value=R[22]}}, ...) end
         pc = 2158
+        env['getgenv']().KaitunShowHud = R[52]
       elseif pc == 2158 then
         pc = 2159
       elseif pc == 2159 then
@@ -380180,7 +380181,7 @@ P[1067] = function(U, ...)
         R[13] = env["task"]["wait"]
         pc = 5649
       elseif pc == 5649 then
-        R[14] = 0.01
+        R[14] = 0.5
         pc = 5650
       elseif pc == 5650 then
         do local n = 1; local v = table.pack(R[13](table.unpack(R,14,13+n)))
@@ -380209,7 +380210,25 @@ P[1067] = function(U, ...)
       elseif pc == 5658 then
         pc = 5659
       elseif pc == 5659 then
-        do local n = 1; local v = table.pack(R[13](table.unpack(R,14,13+n)))
+        pcall(R[14])
+        if R[12].Team == nil and not R._teamFallbackInFlight then
+          local config = env['getgenv']().Configs
+          local team = type(config) == 'table' and config.Team or nil
+          local now = env['tick']()
+          R._teamWaitAt = R._teamWaitAt or now
+          if (team == 'Marines' or team == 'Pirates') and now - R._teamWaitAt >= 2 and (not R._teamFallbackAt or now - R._teamFallbackAt >= 10) then
+            R._teamFallbackAt = now
+            R._teamFallbackInFlight = true
+            local storage = R[8]
+            env['task'].defer(function()
+              pcall(function()
+                local remote = storage.Remotes.CommF_
+                local ok, result = pcall(remote.InvokeServer, remote, 'SetTeam2', team)
+                if not ok or result ~= 0 then pcall(remote.InvokeServer, remote, 'SetTeam', team) end
+              end)
+              R._teamFallbackInFlight = false
+            end)
+          end
         end
         pc = 5660
       elseif pc == 5660 then
@@ -405073,6 +405092,8 @@ P[1067] = function(U, ...)
         R[197] = true
         pc = 13211
       elseif pc == 13211 then
+        R[196]['KaitunGame'] = env['game']
+        R[196]['KaitunJobId'] = env['game'].JobId
         R[196]["Check_Execute"] = R[197]
         pc = 13212
       elseif pc == 13212 then
@@ -405801,4 +405822,21 @@ P[1067] = function(U, ...)
   end
 end
 
+local state = getgenv()
+if state.Check_Execute then
+  local sameSession = state.KaitunGame == game and state.KaitunJobId == game.JobId
+  local legacySession = state.KaitunGame == nil and state.KaitunJobId == nil
+  local ok, hud = pcall(function() return game:GetService('CoreGui'):FindFirstChild('XeroKaitunHud') end)
+  if sameSession or (legacySession and ok and hud) then
+    if ok and hud then
+      pcall(function() hud.Enabled = true end)
+      if type(state.KaitunShowHud) == 'function' then
+        pcall(state.KaitunShowHud, true)
+      end
+    end
+    return
+  end
+  state.Check_Execute = nil
+  state.KaitunShowHud = nil
+end
 return P[1067]({})
