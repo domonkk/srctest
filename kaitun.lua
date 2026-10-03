@@ -364785,10 +364785,14 @@ P[1067] = function(U, ...)
         R[9] = R[7]
         pc = 939
       elseif pc == 939 then
-        do local n = 1; local v = table.pack(R[8](table.unpack(R,9,8+n)))
-        for i=1,1 do R[7+i]=v[i] end
+        if type(R[9]) ~= 'function' then
+          pc = 961
+        else
+          do local n = 1; local v = table.pack(R[8](table.unpack(R,9,8+n)))
+          for i=1,1 do R[7+i]=v[i] end
+          end
+          pc = 940
         end
-        pc = 940
       elseif pc == 940 then
         pc = 941
         if (R[8] == true) ~= true then pc = 953 end
@@ -365747,10 +365751,14 @@ P[1067] = function(U, ...)
       elseif pc == 1241 then
         pc = 1242
       elseif pc == 1242 then
-        do local n = 1; local v = table.pack(R[8](table.unpack(R,9,8+n)))
-        for i=1,1 do R[7+i]=v[i] end
+        if type(R[9]) ~= 'function' then
+          pc = 1275
+        else
+          do local n = 1; local v = table.pack(R[8](table.unpack(R,9,8+n)))
+          for i=1,1 do R[7+i]=v[i] end
+          end
+          pc = 1243
         end
-        pc = 1243
       elseif pc == 1243 then
         pc = 1244
         if (R[8] == true) ~= true then pc = 1261 end
