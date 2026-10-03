@@ -365236,8 +365236,7 @@ P[1067] = function(U, ...)
         R[5] = R[203]
         pc = 1079
       elseif pc == 1079 then
-        R[3] = {}
-        pc = 1080
+        pc = 1324
       elseif pc == 1080 then
         R[4] = env["request"]
         pc = 1081
